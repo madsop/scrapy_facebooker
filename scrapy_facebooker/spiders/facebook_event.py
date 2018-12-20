@@ -93,9 +93,8 @@ class FacebookEventSpider(scrapy.Spider):
             # Return an array containing two elements,
             # the first element is the date of the event,
             # the second element is the place of the event.
-            summaries = soup.find('div', id='event_summary').findChildren(
-                recursive=False
-            )
+            summaries = soup.find_all('div', class_='fbEventInfoText')
+
             date_and_place_list = [element.get_text(' ') for element in
                                    summaries]
             # All events should have a date, but it's not necessary
@@ -106,7 +105,7 @@ class FacebookEventSpider(scrapy.Spider):
             return date_and_place_list
 
         def get_event_title():
-            return soup.select('header h3')[0].get_text()
+            return soup.select('title')[0].get_text()
 
         def get_event_date():
             return soup.select('header span')[0]['title']
