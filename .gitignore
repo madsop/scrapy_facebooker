@@ -1,3 +1,5 @@
 **/*.pyc
 downloaded-photos
 .cache
+scrapy_facebooker/events/*.json
+.vscode/*
