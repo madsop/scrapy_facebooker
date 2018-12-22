@@ -112,10 +112,13 @@ class FacebookEventSpider(scrapy.Spider):
         fevent['url'] = response.url
         fevent['summary_date'], fevent['summary_place'] = get_event_summary()
         fevent['title'] = get_event_title()
+        self.writeEventToFile(response, fevent)
+        return fevent
+
+    def writeEventToFile(self, response, fevent):
         url = response.url.replace('https://m.facebook.com/events/', '')
         with open('events/' + self.target_username +"_" + url + '.json', 'w') as outfile:
             json.dump(fevent.__dict__, outfile)
-        return fevent
 
     @staticmethod
     def create_fb_event_ajax_url(page_id, serialized_cursor, see_more_id):
