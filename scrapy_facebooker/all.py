@@ -7,7 +7,7 @@ from collections import OrderedDict
 from urllib.parse import urlencode, urljoin
 from multiprocessing import Process
 from twisted.internet import reactor
-from google.cloud import storage
+#from google.cloud import storage
 from scrapy.crawler import CrawlerRunner
 
 runningLocally = True
@@ -141,7 +141,6 @@ class FacebookEventSpider(scrapy.Spider):
     def saveToLocalFile(self, name, fevent):
         with open('events/' + name, 'w') as outfile:
             json.dump(fevent.__dict__, outfile)
-            print(outfile)
 
     def writeEventToFile(self, response, fevent):
         url = response.url.replace('https://m.facebook.com/events/', '')
