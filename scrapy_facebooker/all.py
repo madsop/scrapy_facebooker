@@ -12,7 +12,7 @@ from scrapy.crawler import CrawlerRunner
 
 from scrapy.crawler import CrawlerProcess
 
-def runningLocally = True
+runningLocally = True
 
 class FacebookEvent(scrapy.Item):
     date = scrapy.Field()
