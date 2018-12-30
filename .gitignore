@@ -1,5 +1,8 @@
 **/*.pyc
+.DS_STORE
+*.swp
 downloaded-photos
 .cache
 scrapy_facebooker/events/*.json
 .vscode/*
+scrapy_facebooker/libs/**
