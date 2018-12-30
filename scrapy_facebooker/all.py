@@ -5,12 +5,10 @@ import scrapy.crawler as crawler
 from bs4 import BeautifulSoup
 from collections import OrderedDict
 from urllib.parse import urlencode, urljoin
-from multiprocessing import Process, Queue
+from multiprocessing import Process
 from twisted.internet import reactor
 from google.cloud import storage
 from scrapy.crawler import CrawlerRunner
-
-from scrapy.crawler import CrawlerProcess
 
 runningLocally = True
 
@@ -138,9 +136,7 @@ class FacebookEventSpider(scrapy.Spider):
 
         blob.upload_from_string(blob_text)
 
-        print('File {} uploaded to {}.'.format(
-            source_file_name,
-            destination_blob_name))
+        print('File uploaded to {}.'.format(destination_blob_name))
 
     def saveToLocalFile(self, name, fevent):
         with open('events/' + name, 'w') as outfile:
@@ -152,7 +148,7 @@ class FacebookEventSpider(scrapy.Spider):
         name = self.target_username +"_" + url + '.json'
         print('Saving ' + name)
         if (runningLocally):
-            saveToLocalFile(name, fevent)
+            self.saveToLocalFile(name, fevent)
         else:
             self.upload_blob('fb-events2', str(fevent), name)
 
@@ -168,37 +164,13 @@ class FacebookEventSpider(scrapy.Spider):
                                              query=query_str)
 
 pages = ["AttacNorge", "UngdomMotEU"]
-
-def getProcess():
-    return CrawlerProcess({
-        'USER_AGENT': 'Mozilla/5.0 (Linux; U; Android 4.0.3; ko-kr; LG-L160L Build/IML74K) AppleWebkit/534.30 (KHTML, like Gecko) Version/4.0 Mobile Safari/534.30'
-    })
- 
-def fetchOne(q, runner, page):
-    try: 
-        runner.crawl(FacebookEventSpider, page=page)
-        q.put(None)
-    except Exception as e:
-        q.put(e)
-
-
-def fetchPage(p, page):
-    q = Queue()
     
-    p.start()
-    result = q.get()
-    p.join()
-    
-    if result is not None:
-        raise result
-
 def fetch():
-    q = Queue()
     runner = crawler.CrawlerRunner({
         'USER_AGENT': 'Mozilla/5.0 (Linux; U; Android 4.0.3; ko-kr; LG-L160L Build/IML74K) AppleWebkit/534.30 (KHTML, like Gecko) Version/4.0 Mobile Safari/534.30'
     })
     for page in pages:
-        fetchOne(q, runner, page)
+        runner.crawl(FacebookEventSpider, page=page)
     d = runner.join()
     d.addBoth(lambda _: reactor.stop())
     reactor.run()
@@ -206,4 +178,6 @@ def fetch():
 def run(request):
     fetch()
 
-#fetch()
+
+if runningLocally:
+    fetch()
