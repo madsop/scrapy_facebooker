@@ -1,6 +1,7 @@
 import re
 import scrapy
 import json
+import time
 import scrapy.crawler as crawler
 from bs4 import BeautifulSoup
 from collections import OrderedDict
@@ -139,13 +140,13 @@ class FacebookEventSpider(scrapy.Spider):
         print('File uploaded to {}.'.format(destination_blob_name))
 
     def saveToLocalFile(self, name, fevent):
+        print('Saving ' + name)
         with open('events/' + name, 'w') as outfile:
             json.dump(fevent.__dict__, outfile)
 
     def writeEventToFile(self, response, fevent):
         url = response.url.replace('https://m.facebook.com/events/', '')
         name = self.target_username +"_" + url + '.json'
-        print('Saving ' + name)
         if (runningLocally):
             self.saveToLocalFile(name, fevent)
         else:
@@ -174,8 +175,17 @@ def fetch():
     d.addBoth(lambda _: reactor.stop())
     reactor.run()
 
-def run(request):
-    fetch()
+def run(data, function):
+    i = 0
+    while i < 4:
+        try:
+            fetch()
+            return
+        except Exception as e:
+            print('ReactorNotRestartableError, number ' + str(i))
+            i += 1
+            time.sleep(1)
+            continue
 
 
 if runningLocally:
